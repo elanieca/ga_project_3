@@ -1,0 +1,33 @@
+{
+  "name": "ga_project_3",
+  "version": "1.0.0",
+  "description": "Project 3 at GA; Book Diary App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "npx nodemon index.js",
+    "seed": "node db/seed.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elanieca/ga_project_3.git"
+  },
+  "author": "Melanie Sophie Speckens, Imogen Farr, Alex Thomas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elanieca/ga_project_3/issues"
+  },
+  "homepage": "https://github.com/elanieca/ga_project_3#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.8.2",
+    "mongoose-hidden": "^1.9.1",
+    "mongoose-unique-validator": "^3.1.0"
+  }
+}
