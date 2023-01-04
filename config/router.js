@@ -4,6 +4,7 @@ import booksController from '../controllers/bookController.js';
 import genreController from '../controllers/genreController.js';
 import userController from '../controllers/userController.js';
 
+
 const Router = express.Router();
 
 // Router.route('/books').get().post();
@@ -33,7 +34,9 @@ Router.route('/books/search').get(booksController.searchBooks);
 Router.route('/books/:bookId')
   .get(booksController.getSingleBook)
   .delete(secureRoute, booksController.deleteSingleBook);
-
+  
+Router.route('/books/search').get(booksController.searchBooks);
+  
 Router.route('/genres')
   .get(genreController.getAllGenres)
   .post(secureRoute, genreController.createNewGenre);
@@ -45,5 +48,6 @@ Router.route('/genres/:genreId/books')
 Router.route('/register').post(userController.registerUser);
 
 Router.route('/login').post(userController.loginUser);
+
 
 export default Router;
