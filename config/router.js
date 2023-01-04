@@ -1,6 +1,7 @@
 import express from 'express';
 import secureRoute from '../middleware/secureRoute.js';
 import booksController from '../controllers/bookController.js';
+import genreController from '../controllers/genreController.js';
 
 const Router = express.Router();
 
