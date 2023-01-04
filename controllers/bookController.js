@@ -81,12 +81,12 @@ const deleteSingleBook = async (req, res, next) => {
 
 const searchBooks = async (req, res, next) => {
   try {
-    const { search } = req.query;
+    const { q } = req.query;
     const books = await Book.find({
       $or: [
-        { name: { $regex: search, $options: 'i' } },
-        { author: { $regex: search, $options: 'i' } },
-        { genres: { $regex: search, $options: 'i' } }
+        { name: { $regex: q, $options: 'i' } },
+        { author: { $regex: q, $options: 'i' } },
+        { genres: { $regex: q, $options: 'i' } }
       ]
     });
 

@@ -1,4 +1,6 @@
 import express from 'express';
+import secureRoute from '../middleware/secureRoute.js';
+import booksController from '../controllers/bookController.js';
 
 const Router = express.Router();
 
@@ -19,5 +21,15 @@ const Router = express.Router();
 // Router.route('/users/:userId/books').get();
 
 // Router.route('/users/:userId/favorites').get().post() // post req body icludes bookId & if isLiked = true
+
+Router.route('/books')
+  .get(booksController.getAllBooks)
+  .post(booksController.addNewBook);
+
+Router.route('/books/search').get(booksController.searchBooks);
+
+Router.route('/books/:bookId')
+  .get(booksController.getSingleBook)
+  .delete(secureRoute, booksController.deleteSingleBook);
 
 export default Router;
