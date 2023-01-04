@@ -20,7 +20,9 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: (pw) =>
       /(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(pw)
-  }
+  },
+  myBooks: [{ type: mongoose.Schema.ObjectId, ref: 'Book' }],
+  favoriteBooks: [{ type: mongoose.Schema.ObjectId, ref: 'Book' }]
 });
 
 userSchema.pre('save', function encryptPassword(next) {
