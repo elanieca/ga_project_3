@@ -15,7 +15,9 @@ Router.route('/books/search').get(booksController.searchBooks);
 Router.route('/books/:bookId')
   .get(booksController.getSingleBook)
   .delete(secureRoute, booksController.deleteSingleBook);
-
+  
+Router.route('/books/search').get(booksController.searchBooks);
+  
 Router.route('/genres')
   .get(genreController.getAllGenres)
   .post(secureRoute, genreController.createNewGenre);
