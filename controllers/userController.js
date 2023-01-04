@@ -27,7 +27,7 @@ async function loginUser(req, res, next) {
     const isValidPassword = user.validatePassword(req.body.password);
 
     if (!isValidPassword) {
-      return res.status(403).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const token = jwt.sign(
@@ -55,7 +55,7 @@ async function getBooksFromUser(req, res, next) {
 
 async function getFavoriteBooksFromUser(req, res, next) {
   try {
-    const user = await User.findById(req.params.userId).populate(
+    const user = await User.findById(req.currentUser._id).populate(
       'favoriteBooks'
     );
     return user
@@ -63,17 +63,6 @@ async function getFavoriteBooksFromUser(req, res, next) {
       : res.status(404).json({ message: 'No user found' });
   } catch (error) {
     next(error);
-  }
-}
-
-async function getSingleUser(req, res, next) {
-  try {
-    const user = await User.findById(req.params.id);
-    return user
-      ? res.status(200).json(user)
-      : res.status(404).json({ message: 'No user found' });
-  } catch (e) {
-    next(e);
   }
 }
 
@@ -86,12 +75,48 @@ async function getAllUsers(_req, res, next) {
   }
 }
 
+async function addRemoveFavorite(req, res, next) {
+  try {
+    const user = User.findById(req.params.userId);
+
+    const isOwner = req.currentUser._id.equals(user._id);
+    const isFavorite = user.favoriteBooks.includes(req.body.bookId);
+
+    if (!isOwner) {
+      return res.status(403).json({ message: 'unauthorized' });
+    }
+
+    if (!isFavorite) {
+      await User.updateOne(
+        { _id: user._id },
+        { $push: { favoriteBooks: req.body.bookId } }
+      );
+
+      return res.status(200).json({
+        message: `added book with id ${req.body.bookId} to favorites`
+      });
+    }
+
+    if (isFavorite) {
+      await User.updateOne(
+        { _id: user._id },
+        { $pull: { favoriteBooks: { $in: req.body.bookId } } }
+      );
+
+      return res.status(200).json({
+        message: `removed book with id ${req.body.bookId} from favorites`
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+}
+
 export default {
   registerUser,
   loginUser,
   getBooksFromUser,
   getFavoriteBooksFromUser,
-  toggleFavorite,
-  getAllUsers,
-  getSingleUser
+  addRemoveFavorite,
+  getAllUsers
 };

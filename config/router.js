@@ -4,26 +4,7 @@ import booksController from '../controllers/bookController.js';
 import genreController from '../controllers/genreController.js';
 import userController from '../controllers/userController.js';
 
-
 const Router = express.Router();
-
-// Router.route('/books').get().post();
-
-// Router.route('/books/search').get();
-
-// Router.route('/books/:bookId').get().delete();
-
-// Router.route('/genres').get().post();
-
-// Router.route('/genres/:genreId/books').get().delete();
-
-// Router.route('/register').post();
-
-// Router.route('/login').post();
-
-// Router.route('/users/:userId/books').get();
-
-// Router.route('/users/:userId/favorites').get().post() // post req body icludes bookId & if isLiked = true
 
 Router.route('/books')
   .get(booksController.getAllBooks)
@@ -49,5 +30,12 @@ Router.route('/register').post(userController.registerUser);
 
 Router.route('/login').post(userController.loginUser);
 
+Router.route('/users').get(userController.getAllUsers);
+
+Router.route('/users/:userId/books').get(userController.getBooksFromUser);
+
+Router.route('/users/:userId/favoriteBooks')
+  .get(secureRoute, userController.getFavoriteBooksFromUser)
+  .post(secureRoute, userController.addRemoveFavorite);
 
 export default Router;
