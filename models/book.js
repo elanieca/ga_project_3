@@ -9,7 +9,7 @@ const bookSchema = new mongoose.Schema({
   rating: { type: Number, required: true },
   diaryEntry: { type: String, required: true, min: 1, max: 500 },
   addedBy: { type: mongoose.Schema.ObjectId, ref: 'User', required: true },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now, required: true }
 });
 
 export default mongoose.model('Book', bookSchema);
