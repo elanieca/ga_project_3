@@ -59,7 +59,7 @@ async function getFavoriteBooksFromUser(req, res, next) {
       'favoriteBooks'
     );
     return user
-      ? res.status(200).json(user)
+      ? res.status(200).json(user.favoriteBooks)
       : res.status(404).json({ message: 'No user found' });
   } catch (error) {
     next(error);
@@ -78,9 +78,8 @@ async function getAllUsers(_req, res, next) {
 async function addRemoveFavorite(req, res, next) {
   try {
     const user = User.findById(req.params.userId);
-
-    const isOwner = req.currentUser._id.equals(user._id);
-    const isFavorite = user.favoriteBooks.includes(req.body.bookId);
+    const isOwner = req.currentUser._id.equals(req.params.userId);
+    const isFavorite = user.favoriteBooks?.includes(req.body.bookId);
 
     if (!isOwner) {
       return res.status(403).json({ message: 'unauthorized' });
@@ -88,7 +87,7 @@ async function addRemoveFavorite(req, res, next) {
 
     if (!isFavorite) {
       await User.updateOne(
-        { _id: user._id },
+        { _id: req.params.userId },
         { $push: { favoriteBooks: req.body.bookId } }
       );
 
@@ -99,7 +98,7 @@ async function addRemoveFavorite(req, res, next) {
 
     if (isFavorite) {
       await User.updateOne(
-        { _id: user._id },
+        { _id: req.params.userId },
         { $pull: { favoriteBooks: { $in: req.body.bookId } } }
       );
 
