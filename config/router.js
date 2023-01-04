@@ -2,6 +2,7 @@ import express from 'express';
 import secureRoute from '../middleware/secureRoute.js';
 import booksController from '../controllers/bookController.js';
 import genreController from '../controllers/genreController.js';
+import userController from '../controllers/userController.js';
 
 const Router = express.Router();
 
@@ -41,5 +42,8 @@ Router.route('/genres/:genreId/books')
   .get(genreController.getAllBooksForGenre)
   .delete(secureRoute, genreController.deleteGenre);
 
-export default Router;
+Router.route('/register').post(userController.registerUser);
 
+Router.route('/login').post(userController.loginUser);
+
+export default Router;
