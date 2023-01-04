@@ -24,7 +24,7 @@ const Router = express.Router();
 
 Router.route('/books')
   .get(booksController.getAllBooks)
-  .post(booksController.addNewBook);
+  .post(secureRoute, booksController.addNewBook);
 
 Router.route('/books/search').get(booksController.searchBooks);
 
