@@ -20,4 +20,13 @@ const Router = express.Router();
 
 // Router.route('/users/:userId/favorites').get().post() // post req body icludes bookId & if isLiked = true
 
+Router.route('/genres')
+  .get(genreController.getAllGenres)
+  .post(secureRoute, genreController.createNewGenre);
+
+Router.route('/genres/:genreId/books')
+  .get(genreController.getAllBooksForGenre)
+  .delete(secureRoute, genreController.deleteGenre);
+
 export default Router;
+
