@@ -33,7 +33,7 @@ async function getAllGenres(_req, res, next) {
 
 async function getAllBooksForGenre(req, res, next) {
   try {
-    const genre = await Genre.findById(req.params.id).populate('books');
+    const genre = await Genre.findById(req.params.genreId).populate('books');
     return res.status(200).json(genre);
   } catch (e) {
     next(e);
