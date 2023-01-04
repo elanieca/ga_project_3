@@ -56,7 +56,7 @@ const deleteSingleBook = async (req, res, next) => {
     const isOwner = req.currentUser._id.equals(book.addedBy);
 
     if (!isAdmin && !isOwner) {
-      return res.status(301).json({ message: 'unauthorized' });
+      return res.status(403).json({ message: 'unauthorized' });
     }
 
     await Genre.updateOne(
