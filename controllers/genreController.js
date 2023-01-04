@@ -1,7 +1,5 @@
-// import Brewery from '../models/brewery.js';
 import Genre from '../models/genre.js';
 import Book from '../models/book.js';
-import mongoose from 'mongoose';
 
 async function createNewGenre(req, res, next) {
   
@@ -18,7 +16,7 @@ async function createNewGenre(req, res, next) {
       next(e);
     }
   }
-  return res.status(301).send({ message: 'Unauthorized' });
+  return res.status(403).send({ message: 'Unauthorized' });
 }
 
 
@@ -56,7 +54,7 @@ async function deleteGenre(req, res, next) {
       next(error);
     }
   }
-  return res.status(301).send({ message: 'Unauthorized' });
+  return res.status(403).send({ message: 'Unauthorized' });
 }
 
 export default {
