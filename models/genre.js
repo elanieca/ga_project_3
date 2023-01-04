@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const genreSchema = new mongoose.Schema({
-  genre: { type: String, required: true },
+  name: { type: String, required: true },
   books: [{ type: mongoose.Schema.ObjectId, ref: 'Book' }]
 });
 
