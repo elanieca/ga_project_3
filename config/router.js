@@ -36,7 +36,7 @@ Router.route('/users').get(userController.getAllUsers);
 
 Router.route('/users/:userId/books').get(userController.getBooksFromUser);
 
-Router.route('/users/:userId/favoriteBooks')
+Router.route('/users/:userId/favorite-books')
   .get(secureRoute, userController.getFavoriteBooksFromUser)
   .post(secureRoute, userController.addRemoveFavorite);
 
