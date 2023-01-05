@@ -1,9 +1,6 @@
-import book from '../models/book.js';
 import Book from '../models/book.js';
 import Genre from '../models/genre.js';
 import User from '../models/user.js';
-
-// TODO: addBook, deleteSingleBook, search
 
 const getAllBooks = async (_req, res, next) => {
   try {
@@ -15,9 +12,25 @@ const getAllBooks = async (_req, res, next) => {
   }
 };
 
+const getLatestBooks = async (_req, res, next) => {
+  try {
+    const books = await Book.find()
+      .sort({ createdAt: 'desc' })
+      .limit(2)
+      .populate('addedBy', '-myBooks -favoriteBooks');
+
+    return res.status(200).json(books);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getSingleBook = async (req, res, next) => {
   try {
-    const book = await Book.findById(req.params.bookId);
+    const book = await Book.findById(req.params.bookId).populate(
+      'addedBy',
+      '-myBooks -favoriteBooks'
+    );
 
     return book
       ? res.status(200).json(book)
@@ -69,6 +82,11 @@ const deleteSingleBook = async (req, res, next) => {
       { $pull: { myBooks: { $in: book._id } } }
     );
 
+    await User.updateMany(
+      { favoriteBooks: book._id },
+      { $pull: { favoriteBooks: { $in: book._id } } }
+    );
+
     await Book.findByIdAndDelete(req.params.bookId);
 
     return res
@@ -84,9 +102,9 @@ const searchBooks = async (req, res, next) => {
     const { q } = req.query;
     const books = await Book.find({
       $or: [
-        { name: { $regex: q, $options: 'i' } },
+        { title: { $regex: q, $options: 'i' } },
         { author: { $regex: q, $options: 'i' } },
-        { genres: { $regex: q, $options: 'i' } }
+        { genre: { $regex: q, $options: 'i' } }
       ]
     });
 
@@ -98,6 +116,7 @@ const searchBooks = async (req, res, next) => {
 
 export default {
   getAllBooks,
+  getLatestBooks,
   addNewBook,
   getSingleBook,
   deleteSingleBook,

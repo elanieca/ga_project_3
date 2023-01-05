@@ -1,25 +1,6 @@
 import Genre from '../models/genre.js';
 import Book from '../models/book.js';
 
-async function createNewGenre(req, res, next) {
-  
-  if (req.currentUser.isAdmin) {
-    try {
-      const genre = await Genre.create(req.body);
-
-      await Book.updateMany(
-        { _id: genre.books },
-        { $push: { genre: genre.name } }
-      );
-      return res.status(201).json(genre);
-    } catch (e) {
-      next(e);
-    }
-  }
-  return res.status(403).send({ message: 'Unauthorized' });
-}
-
-
 async function getAllGenres(_req, res, next) {
   try {
     const genres = await Genre.find();
@@ -38,28 +19,58 @@ async function getAllBooksForGenre(req, res, next) {
   }
 }
 
-async function deleteGenre(req, res, next) {
-  if (req.currentUser.isAdmin) {
-    try {
-      const genre = await Genre.findById(req.params.genreId);
-
-      await Genre.findByIdAndDelete(req.params.genreId);
-      await Book.updateMany(
-        { genre: genre.name },
-        { $unset: { genre: 1 } }
-      );
-      
-      return res.status(200).send({ message: `You have successfully deleted ${genre.name}!` });
-    } catch (error) {
-      next(error);
+async function createNewGenre(req, res, next) {
+  try {
+    if (!req.currentUser.isAdmin) {
+      return res.status(403).send({ message: 'Unauthorized' });
     }
+
+    const genre = await Genre.create(req.body);
+
+    await Genre.updateMany(
+      { $and: [{ _id: { $nin: genre._id } }, { books: { $in: genre.books } }] },
+      { $pull: { books: { $in: genre.books } } }
+    );
+
+    await Book.updateMany(
+      { _id: { $in: genre.books } },
+      { $set: { genre: genre.name } }
+    );
+
+    return res.status(201).json(genre);
+  } catch (e) {
+    next(e);
   }
-  return res.status(403).send({ message: 'Unauthorized' });
+}
+
+async function deleteGenre(req, res, next) {
+  try {
+    if (!req.currentUser.isAdmin) {
+      return res.status(403).json({ message: 'unauthorized' });
+    }
+
+    const genre = await Genre.findById(req.params.genreId);
+
+    await Book.updateMany({ genre: genre.name }, { $set: { genre: 'Other' } });
+
+    await Genre.updateOne(
+      { name: 'Other' },
+      { $push: { books: { $each: genre.books } } }
+    );
+
+    await Genre.findByIdAndDelete(req.params.genreId);
+
+    return res
+      .status(200)
+      .send({ message: `You have successfully deleted ${genre.name}!` });
+  } catch (error) {
+    next(error);
+  }
 }
 
 export default {
   createNewGenre,
   getAllGenres,
   getAllBooksForGenre,
-  deleteGenre,
+  deleteGenre
 };
