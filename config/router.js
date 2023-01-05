@@ -22,6 +22,8 @@ Router.route('/genres')
   .get(genreController.getAllGenres)
   .post(secureRoute, genreController.createNewGenre);
 
+Router.route('/genres/names').get(genreController.getGenreNames);
+
 Router.route('/genres/:genreId/books')
   .get(genreController.getAllBooksForGenre)
   .delete(secureRoute, genreController.deleteGenre);
@@ -29,6 +31,8 @@ Router.route('/genres/:genreId/books')
 Router.route('/register').post(userController.registerUser);
 
 Router.route('/login').post(userController.loginUser);
+
+Router.route('/users').get(userController.getAllUsers);
 
 Router.route('/users/:userId/books').get(userController.getBooksFromUser);
 

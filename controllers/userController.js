@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+
 import { SECRET } from '../config/environment.js';
 
-async function registerUser(req, res, next) {
+const registerUser = async (req, res, next) => {
   try {
     if (req.body.password !== req.body.passwordConfirmation) {
       return res.status(422).json({ message: 'Passwords do not match' });
@@ -13,20 +14,20 @@ async function registerUser(req, res, next) {
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function loginUser(req, res, next) {
+const loginUser = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-      return res.status(404).json({ message: 'Unauthorized' });
+      return res.status(404).json({ message: 'unauthorized' });
     }
 
     const isValidPassword = user.validatePassword(req.body.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'unauthorized' });
     }
 
     const token = jwt.sign(
@@ -35,33 +36,48 @@ async function loginUser(req, res, next) {
       { expiresIn: '6h' }
     );
 
-    return res.status(202).send({ token, message: 'Login Successful!' });
+    return res.status(202).send({ token, message: 'login successful' });
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function getBooksFromUser(req, res, next) {
+const getAllUsers = async (_req, res, next) => {
+  try {
+    const users = await User.find({}, { favoriteBooks: 0 });
+
+    return res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getBooksFromUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId, {
       favoriteBooks: 0
     }).populate('myBooks');
+
     return user
       ? res.status(200).json(user)
-      : res.status(404).json({ message: 'No user found' });
+      : res
+          .status(404)
+          .json({ message: `no user with id ${req.params.userId} found` });
   } catch (error) {
     next(error);
   }
-}
+};
 
-async function getFavoriteBooksFromUser(req, res, next) {
+const getFavoriteBooksFromUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId, {
       myBooks: 0
     }).populate('favoriteBooks');
 
     if (!user) {
-      return res.status(404).json({ message: 'No user found' });
+      return res
+        .status(404)
+        .json({ message: `no user with id ${req.params.userId} found` });
     }
 
     const isOwner = req.currentUser._id.equals(user._id);
@@ -74,11 +90,18 @@ async function getFavoriteBooksFromUser(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+};
 
-async function addRemoveFavorite(req, res, next) {
+const addRemoveFavorite = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `no user with id ${req.params.userId} found` });
+    }
+
     const isOwner = req.currentUser._id.equals(user._id);
     const isFavorite = user.favoriteBooks.includes(req.body.bookId);
 
@@ -110,11 +133,12 @@ async function addRemoveFavorite(req, res, next) {
   } catch (err) {
     next(err);
   }
-}
+};
 
 export default {
   registerUser,
   loginUser,
+  getAllUsers,
   getBooksFromUser,
   getFavoriteBooksFromUser,
   addRemoveFavorite

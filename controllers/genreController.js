@@ -1,28 +1,44 @@
 import Genre from '../models/genre.js';
 import Book from '../models/book.js';
 
-async function getAllGenres(_req, res, next) {
+const getAllGenres = async (_req, res, next) => {
   try {
     const genres = await Genre.find();
+
     return res.status(200).json(genres);
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function getAllBooksForGenre(req, res, next) {
+const getGenreNames = async (_req, res, next) => {
+  try {
+    const genres = await Genre.find({}, { books: 0 });
+
+    return res.status(200).json(genres);
+  } catch (err) {
+    next();
+  }
+};
+
+const getAllBooksForGenre = async (req, res, next) => {
   try {
     const genre = await Genre.findById(req.params.genreId).populate('books');
-    return res.status(200).json(genre);
+
+    return genre
+      ? res.status(200).json(genre)
+      : res
+          .status(404)
+          .json({ message: `no genre with ${req.params.genreId} found` });
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function createNewGenre(req, res, next) {
+const createNewGenre = async (req, res, next) => {
   try {
     if (!req.currentUser.isAdmin) {
-      return res.status(403).send({ message: 'Unauthorized' });
+      return res.status(403).send({ message: 'unauthorized' });
     }
 
     const genre = await Genre.create(req.body);
@@ -41,15 +57,21 @@ async function createNewGenre(req, res, next) {
   } catch (e) {
     next(e);
   }
-}
+};
 
-async function deleteGenre(req, res, next) {
+const deleteGenre = async (req, res, next) => {
   try {
     if (!req.currentUser.isAdmin) {
       return res.status(403).json({ message: 'unauthorized' });
     }
 
     const genre = await Genre.findById(req.params.genreId);
+
+    if (!genre) {
+      return res
+        .status(404)
+        .json({ message: `no genre with id ${req.params.genreId} found` });
+    }
 
     await Book.updateMany({ genre: genre.name }, { $set: { genre: 'Other' } });
 
@@ -62,15 +84,16 @@ async function deleteGenre(req, res, next) {
 
     return res
       .status(200)
-      .send({ message: `You have successfully deleted ${genre.name}!` });
+      .send({ message: `successfully deleted ${genre.name}` });
   } catch (error) {
     next(error);
   }
-}
+};
 
 export default {
-  createNewGenre,
   getAllGenres,
+  getGenreNames,
   getAllBooksForGenre,
+  createNewGenre,
   deleteGenre
 };
