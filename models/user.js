@@ -5,10 +5,8 @@ import mongooseHidden from 'mongoose-hidden';
 import { emailRegex } from '../lib/stringTesters.js';
 
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  username: { type: String, required: true },
   isAdmin: { type: Boolean },
+  username: { type: String, required: true, unique: true },
   email: {
     type: String,
     required: true,
@@ -37,7 +35,9 @@ userSchema.methods.validatePassword = function validatePassword(password) {
 };
 
 userSchema.plugin(
-  mongooseHidden({ defaultHidden: { password: true, email: true } })
+  mongooseHidden({
+    defaultHidden: { password: true, email: true, isAdmin: true }
+  })
 );
 
 userSchema.plugin(uniqueValidator);

@@ -10,14 +10,14 @@ Router.route('/books')
   .get(booksController.getAllBooks)
   .post(secureRoute, booksController.addNewBook);
 
+Router.route('/books/latest').get(booksController.getLatestBooks);
+
 Router.route('/books/search').get(booksController.searchBooks);
 
 Router.route('/books/:bookId')
   .get(booksController.getSingleBook)
   .delete(secureRoute, booksController.deleteSingleBook);
-  
-Router.route('/books/search').get(booksController.searchBooks);
-  
+
 Router.route('/genres')
   .get(genreController.getAllGenres)
   .post(secureRoute, genreController.createNewGenre);
@@ -29,8 +29,6 @@ Router.route('/genres/:genreId/books')
 Router.route('/register').post(userController.registerUser);
 
 Router.route('/login').post(userController.loginUser);
-
-Router.route('/users').get(userController.getAllUsers);
 
 Router.route('/users/:userId/books').get(userController.getBooksFromUser);
 

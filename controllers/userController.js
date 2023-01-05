@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
-import Book from '../models/book.js';
 import { SECRET } from '../config/environment.js';
 
 async function registerUser(req, res, next) {
@@ -44,7 +43,9 @@ async function loginUser(req, res, next) {
 
 async function getBooksFromUser(req, res, next) {
   try {
-    const user = await User.findById(req.params.userId).populate('myBooks');
+    const user = await User.findById(req.params.userId, {
+      favoriteBooks: 0
+    }).populate('myBooks');
     return user
       ? res.status(200).json(user)
       : res.status(404).json({ message: 'No user found' });
@@ -55,31 +56,31 @@ async function getBooksFromUser(req, res, next) {
 
 async function getFavoriteBooksFromUser(req, res, next) {
   try {
-    const user = await User.findById(req.currentUser._id).populate(
-      'favoriteBooks'
-    );
-    return user
-      ? res.status(200).json(user.favoriteBooks)
-      : res.status(404).json({ message: 'No user found' });
+    const user = await User.findById(req.params.userId, {
+      myBooks: 0
+    }).populate('favoriteBooks');
+
+    if (!user) {
+      return res.status(404).json({ message: 'No user found' });
+    }
+
+    const isOwner = req.currentUser._id.equals(user._id);
+
+    if (!isOwner) {
+      return res.status(403).json({ message: 'unauthorized' });
+    }
+
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
 }
 
-async function getAllUsers(_req, res, next) {
-  try {
-    const users = await User.find();
-    return res.status(200).json(users);
-  } catch (e) {
-    next(e);
-  }
-}
-
 async function addRemoveFavorite(req, res, next) {
   try {
-    const user = User.findById(req.params.userId);
-    const isOwner = req.currentUser._id.equals(req.params.userId);
-    const isFavorite = user.favoriteBooks?.includes(req.body.bookId);
+    const user = await User.findById(req.params.userId);
+    const isOwner = req.currentUser._id.equals(user._id);
+    const isFavorite = user.favoriteBooks.includes(req.body.bookId);
 
     if (!isOwner) {
       return res.status(403).json({ message: 'unauthorized' });
@@ -87,7 +88,7 @@ async function addRemoveFavorite(req, res, next) {
 
     if (!isFavorite) {
       await User.updateOne(
-        { _id: req.params.userId },
+        { _id: user._id },
         { $push: { favoriteBooks: req.body.bookId } }
       );
 
@@ -98,7 +99,7 @@ async function addRemoveFavorite(req, res, next) {
 
     if (isFavorite) {
       await User.updateOne(
-        { _id: req.params.userId },
+        { _id: user._id },
         { $pull: { favoriteBooks: { $in: req.body.bookId } } }
       );
 
@@ -116,6 +117,5 @@ export default {
   loginUser,
   getBooksFromUser,
   getFavoriteBooksFromUser,
-  addRemoveFavorite,
-  getAllUsers
+  addRemoveFavorite
 };
