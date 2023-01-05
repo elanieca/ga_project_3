@@ -16,7 +16,7 @@ const getLatestBooks = async (_req, res, next) => {
   try {
     const books = await Book.find()
       .sort({ createdAt: 'desc' })
-      .limit(2)
+      .limit(10)
       .populate('addedBy', '-myBooks -favoriteBooks');
 
     return res.status(200).json(books);
@@ -36,7 +36,7 @@ const getSingleBook = async (req, res, next) => {
       ? res.status(200).json(book)
       : res
           .status(404)
-          .json({ message: `No book with id ${req.params.bookId} found` });
+          .json({ message: `no book with id ${req.params.bookId} found` });
   } catch (err) {
     next(err);
   }
@@ -65,6 +65,13 @@ const addNewBook = async (req, res, next) => {
 const deleteSingleBook = async (req, res, next) => {
   try {
     const book = await Book.findById(req.params.bookId);
+
+    if (!book) {
+      return res
+        .status(404)
+        .json({ message: `No book with id ${req.params.bookId} found` });
+    }
+
     const isAdmin = req.currentUser.isAdmin;
     const isOwner = req.currentUser._id.equals(book.addedBy);
 

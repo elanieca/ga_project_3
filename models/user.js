@@ -2,10 +2,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import uniqueValidator from 'mongoose-unique-validator';
 import mongooseHidden from 'mongoose-hidden';
+
 import { emailRegex } from '../lib/stringTesters.js';
 
 const userSchema = new mongoose.Schema({
-  isAdmin: { type: Boolean },
   username: { type: String, required: true, unique: true },
   email: {
     type: String,
@@ -19,6 +19,8 @@ const userSchema = new mongoose.Schema({
     validate: (pw) =>
       /(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/.test(pw)
   },
+  isAdmin: { type: Boolean },
+  cloudinaryImageId: { type: String },
   myBooks: [{ type: mongoose.Schema.ObjectId, ref: 'Book' }],
   favoriteBooks: [{ type: mongoose.Schema.ObjectId, ref: 'Book' }]
 });
